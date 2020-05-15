@@ -28,10 +28,13 @@ func index(c *fiber.Ctx) {
 
 	var filter bson.M = bson.M{}
 
-	if c.Params("id") != "" {
-		id := c.Params("id")
+	if c.Query("id") != "" {
+		id := c.Query("id")
 		objID, _ := primitive.ObjectIDFromHex(id)
 		filter = bson.M{"_id": objID}
+	} else if c.Query("name") != "" {
+		name := c.Query("name")
+		filter = bson.M{"name": name}
 	}
 
 	var results []bson.M
