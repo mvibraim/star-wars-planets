@@ -9,4 +9,5 @@ require (
 	github.com/gofiber/logger v0.0.6
 	github.com/gofiber/recover v0.0.5
 	github.com/klauspost/compress v1.10.5 // indirect
+	go.mongodb.org/mongo-driver v1.3.3
 )
