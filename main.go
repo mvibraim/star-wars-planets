@@ -22,7 +22,7 @@ func index(c *fiber.Ctx) {
 	collection, err := getMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
@@ -42,7 +42,7 @@ func index(c *fiber.Ctx) {
 	defer cur.Close(context.Background())
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
@@ -53,15 +53,16 @@ func index(c *fiber.Ctx) {
 		return
 	}
 
-	json, _ := json.Marshal(results)
-	c.Send(json)
+	c.JSON(results)
 }
 
 func create(c *fiber.Ctx) {
+	c.Accepts("application/json")
+
 	collection, err := getMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
@@ -71,32 +72,33 @@ func create(c *fiber.Ctx) {
 	res, err := collection.InsertOne(context.Background(), planet)
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
-	response, _ := json.Marshal(res)
-	c.Send(response)
+	id, _ := res.InsertedID.(primitive.ObjectID)
+	response := map[string]string{"id": id.Hex()}
+
+	c.Status(201).JSON(response)
 }
 
 func delete(c *fiber.Ctx) {
 	collection, err := getMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
 	objID, _ := primitive.ObjectIDFromHex(c.Params("id"))
-	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
+	_, err = collection.DeleteOne(context.Background(), bson.M{"_id": objID})
 
 	if err != nil {
-		c.Status(500).Send(err)
+		c.Status(500).JSON(err)
 		return
 	}
 
-	jsonResponse, _ := json.Marshal(res)
-	c.Send(jsonResponse)
+	c.Status(204)
 }
 
 func main() {
@@ -107,9 +109,9 @@ func main() {
 	app.Use(recover.New())
 	app.Use(helmet.New())
 
-	app.Post("/planets", create)
-	app.Get("/planets", index)
-	app.Delete("/planets/:id", delete)
+	app.Post("v1/planets", create)
+	app.Get("v1/planets", index)
+	app.Delete("v1/planets/:id", delete)
 
 	app.Listen(port)
 }
