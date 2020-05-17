@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func GetMongoDbConnection() (*mongo.Client, error) {
 	return client, nil
 }
 
-func getMongoDbCollection(DbName string, CollectionName string) (*mongo.Collection, error) {
+func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collection, error) {
 	client, err := GetMongoDbConnection()
 
 	if err != nil {
