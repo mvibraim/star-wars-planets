@@ -1,14 +1,20 @@
 package controllers
 
 import (
-	"star-wars-planets/domain"
-
 	"github.com/gofiber/fiber"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func Index(c *fiber.Ctx) {
+type Controllers struct {
+	PlanetsClient interface {
+		Get(filter bson.M) ([]bson.M, error)
+		Create(body string) (map[string]string, error)
+		Delete(id string) (int64, error)
+	}
+}
+
+func (ctr *Controllers) Index(c *fiber.Ctx) {
 	var filter bson.M = bson.M{}
 
 	if c.Query("id") != "" {
@@ -20,7 +26,7 @@ func Index(c *fiber.Ctx) {
 		filter = bson.M{"name": name}
 	}
 
-	results, err := domain.GetPlanets(filter)
+	results, err := ctr.PlanetsClient.Get(filter)
 
 	if results == nil && err == nil {
 		c.SendStatus(404)
@@ -31,10 +37,10 @@ func Index(c *fiber.Ctx) {
 	}
 }
 
-func Create(c *fiber.Ctx) {
+func (ctr *Controllers) Create(c *fiber.Ctx) {
 	c.Accepts("application/json")
 
-	response, err := domain.CreatePlanet(c.Body())
+	response, err := ctr.PlanetsClient.Create(c.Body())
 
 	if err != nil {
 		c.Status(500).JSON(err)
@@ -43,8 +49,8 @@ func Create(c *fiber.Ctx) {
 	}
 }
 
-func Delete(c *fiber.Ctx) {
-	deletedCount, err := domain.DeletePlanet(c.Params("id"))
+func (ctr *Controllers) Delete(c *fiber.Ctx) {
+	deletedCount, err := ctr.PlanetsClient.Delete(c.Params("id"))
 
 	if deletedCount == 0 {
 		c.Status(404)

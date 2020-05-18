@@ -13,7 +13,9 @@ import (
 const dbName = "planets-db"
 const collectionName = "planets"
 
-func GetPlanets(filter bson.M) ([]bson.M, error) {
+type Planets struct{}
+
+func (planets Planets) Get(filter bson.M) ([]bson.M, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
@@ -37,7 +39,7 @@ func GetPlanets(filter bson.M) ([]bson.M, error) {
 	return results, err
 }
 
-func CreatePlanet(body string) (map[string]string, error) {
+func (planets Planets) Create(body string) (map[string]string, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
@@ -59,7 +61,7 @@ func CreatePlanet(body string) (map[string]string, error) {
 	return response, err
 }
 
-func DeletePlanet(id string) (int64, error) {
+func (planets Planets) Delete(id string) (int64, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
