@@ -2,13 +2,13 @@ package routes
 
 import (
 	"star-wars-planets/controllers"
-	"star-wars-planets/domain"
+	"star-wars-planets/database"
 
 	"github.com/gofiber/fiber"
 )
 
 func Planets(app *fiber.App) {
-	planetsClient := new(domain.PlanetsClient)
+	planetsClient := new(database.PlanetsClient)
 	ctr := controllers.Controllers{}
 	ctr.PlanetsClient = planetsClient
 

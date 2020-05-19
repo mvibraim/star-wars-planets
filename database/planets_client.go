@@ -1,10 +1,8 @@
-package domain
+package database
 
 import (
 	"context"
 	"encoding/json"
-	"star-wars-planets/database"
-	"star-wars-planets/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,8 +13,14 @@ const collectionName = "planets"
 
 type PlanetsClient struct{}
 
+type Planet struct {
+	Name    string `json:"name,omitempty"`
+	Weather string `json:"weather,omitempty"`
+	Terrain string `json:"terrain,omitempty"`
+}
+
 func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
-	collection, err := database.GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
 		return nil, err
@@ -40,13 +44,13 @@ func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
 }
 
 func (client PlanetsClient) Create(body string) (map[string]string, error) {
-	collection, err := database.GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var planet models.Planet
+	var planet Planet
 	json.Unmarshal([]byte(body), &planet)
 
 	res, err := collection.InsertOne(context.Background(), planet)
@@ -62,7 +66,7 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 }
 
 func (client PlanetsClient) Delete(id string) (int64, error) {
-	collection, err := database.GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
 		return -1, err
