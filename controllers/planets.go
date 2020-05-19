@@ -8,7 +8,7 @@ import (
 
 type Controllers struct {
 	PlanetsClient interface {
-		Get(filter bson.M) ([]bson.M, error)
+		Get(filter bson.M) ([]primitive.M, error)
 		Create(body string) (map[string]string, error)
 		Delete(id string) (int64, error)
 	}

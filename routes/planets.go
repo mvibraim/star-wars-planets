@@ -8,9 +8,9 @@ import (
 )
 
 func Planets(app *fiber.App) {
-	client := new(domain.Planets)
+	planetsClient := new(domain.PlanetsClient)
 	ctr := controllers.Controllers{}
-	ctr.PlanetsClient = client
+	ctr.PlanetsClient = planetsClient
 
 	planets := app.Group("v1/planets")
 

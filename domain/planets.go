@@ -13,16 +13,16 @@ import (
 const dbName = "planets-db"
 const collectionName = "planets"
 
-type Planets struct{}
+type PlanetsClient struct{}
 
-func (planets Planets) Get(filter bson.M) ([]bson.M, error) {
+func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var results []bson.M
+	var results []primitive.M
 	cur, err := collection.Find(context.Background(), filter)
 	defer cur.Close(context.Background())
 
@@ -39,7 +39,7 @@ func (planets Planets) Get(filter bson.M) ([]bson.M, error) {
 	return results, err
 }
 
-func (planets Planets) Create(body string) (map[string]string, error) {
+func (client PlanetsClient) Create(body string) (map[string]string, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
@@ -61,7 +61,7 @@ func (planets Planets) Create(body string) (map[string]string, error) {
 	return response, err
 }
 
-func (planets Planets) Delete(id string) (int64, error) {
+func (client PlanetsClient) Delete(id string) (int64, error) {
 	collection, err := database.GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
