@@ -1,4 +1,4 @@
-package controllers
+package main
 
 import (
 	"github.com/gofiber/fiber"
@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Controllers struct {
+type PlanetsControllers struct {
 	PlanetsClient interface {
 		Get(filter bson.M) ([]primitive.M, error)
 		Create(body string) (map[string]string, error)
@@ -14,7 +14,7 @@ type Controllers struct {
 	}
 }
 
-func (ctr *Controllers) Index(c *fiber.Ctx) {
+func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 	var filter bson.M = bson.M{}
 
 	if c.Query("id") != "" {
@@ -37,7 +37,7 @@ func (ctr *Controllers) Index(c *fiber.Ctx) {
 	}
 }
 
-func (ctr *Controllers) Create(c *fiber.Ctx) {
+func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 	c.Accepts("application/json")
 
 	response, err := ctr.PlanetsClient.Create(c.Body())
@@ -49,7 +49,7 @@ func (ctr *Controllers) Create(c *fiber.Ctx) {
 	}
 }
 
-func (ctr *Controllers) Delete(c *fiber.Ctx) {
+func (ctr *PlanetsControllers) Delete(c *fiber.Ctx) {
 	deletedCount, err := ctr.PlanetsClient.Delete(c.Params("id"))
 
 	if deletedCount == 0 {

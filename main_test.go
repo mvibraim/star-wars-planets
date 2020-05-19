@@ -1,11 +1,10 @@
-package routes
+package main
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http/httptest"
-	"star-wars-planets/controllers"
 	"testing"
 
 	"github.com/gofiber/fiber"
@@ -51,7 +50,7 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return(response, nil)
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -72,7 +71,7 @@ func TestDontGetPlanetsDueToNotFound(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return(nil, nil)
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -91,7 +90,7 @@ func TestDontGetPlanetsDueToInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -119,7 +118,7 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(response, nil)
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -138,7 +137,7 @@ func TestDontCreatePlanetDueToInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -159,7 +158,7 @@ func TestDeletePlanetSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(1), nil)
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -182,7 +181,7 @@ func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(0), errors.New(""))
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -205,7 +204,7 @@ func TestDontDeletePlanetDueInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(-1), errors.New(""))
 
-	ctr := controllers.Controllers{}
+	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
