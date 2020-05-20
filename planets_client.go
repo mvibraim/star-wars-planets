@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,9 +15,10 @@ const collectionName = "planets"
 type PlanetsClient struct{}
 
 type Planet struct {
-	Name    string `json:"name,omitempty"`
-	Weather string `json:"weather,omitempty"`
-	Terrain string `json:"terrain,omitempty"`
+	Name             string `json:"name,omitempty"`
+	Weather          string `json:"weather,omitempty"`
+	Terrain          string `json:"terrain,omitempty"`
+	MovieAppearances int    `bson:"movie_appearances"`
 }
 
 func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
@@ -52,6 +54,16 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 	var planet Planet
 	json.Unmarshal([]byte(body), &planet)
+
+	conn := getRedisConn()
+	filmsCount, _ := getCache(conn, strings.ToLower(planet.Name))
+	conn.Close()
+
+	if filmsCount == -1 {
+		planet.MovieAppearances = 0
+	} else {
+		planet.MovieAppearances = filmsCount
+	}
 
 	res, err := collection.InsertOne(context.Background(), planet)
 

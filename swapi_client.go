@@ -19,6 +19,19 @@ type PlanetInfo struct {
 
 const url = "https://swapi.dev/api/planets/"
 
+func cacheFilmsCountByName() {
+	allFilmsCountIndexedByName := fetchPlanets()
+	conn := getRedisConn()
+
+	for _, filmData := range allFilmsCountIndexedByName {
+		for name, filmsCount := range filmData {
+			setCache(conn, name, filmsCount)
+		}
+	}
+
+	conn.Close()
+}
+
 func fetchPlanets() []map[string]int {
 	fmt.Printf("%s\n", "Fetching all planets from SWAPI API and indexing filmsCount by name, as []map[string]int{name: filmsCount}")
 

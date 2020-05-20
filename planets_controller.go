@@ -40,12 +40,12 @@ func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 	c.Accepts("application/json")
 
-	response, err := ctr.PlanetsClient.Create(c.Body())
+	resp, err := ctr.PlanetsClient.Create(c.Body())
 
 	if err != nil {
 		c.Status(500).JSON(err)
 	} else {
-		c.Status(201).JSON(response)
+		c.Status(201).JSON(resp)
 	}
 }
 
