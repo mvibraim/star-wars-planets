@@ -25,6 +25,7 @@ func main() {
 	app.Listen(port)
 }
 
+// PlanetsRoutes setup all the routes related to planets
 func PlanetsRoutes(app *fiber.App) {
 	planetsClient := new(PlanetsClient)
 	ctr := PlanetsControllers{}

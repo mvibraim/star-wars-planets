@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// PlanetsControllers represents the planet controller structure
 type PlanetsControllers struct {
 	PlanetsClient interface {
 		Get(filter bson.M) ([]Planet, error)
@@ -14,6 +15,7 @@ type PlanetsControllers struct {
 	}
 }
 
+// Index render the returned planets as JSON
 func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 	var filter bson.M = bson.M{}
 
@@ -37,6 +39,7 @@ func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 	}
 }
 
+// Create render the planet create response as JSON
 func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 	c.Accepts("application/json")
 
@@ -49,6 +52,7 @@ func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 	}
 }
 
+// Delete render the planet deletion response
 func (ctr *PlanetsControllers) Delete(c *fiber.Ctx) {
 	deletedCount, err := ctr.PlanetsClient.Delete(c.Params("id"))
 

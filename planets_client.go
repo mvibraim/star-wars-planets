@@ -12,8 +12,10 @@ import (
 const dbName = "planets-db"
 const collectionName = "planets"
 
+// PlanetsClient represents the client for Planet collection
 type PlanetsClient struct{}
 
+// Planet represents each record in Planets collection
 type Planet struct {
 	Name             string `json:"name,omitempty"`
 	Weather          string `json:"weather,omitempty"`
@@ -21,6 +23,7 @@ type Planet struct {
 	MovieAppearances int    `bson:"movie_appearances" json:"-"`
 }
 
+// Get return planets from database
 func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
 	collection, err := GetMongoDbCollection(dbName, collectionName)
 
@@ -45,6 +48,7 @@ func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
 	return results, err
 }
 
+// Create insert a planet in database
 func (client PlanetsClient) Create(body string) (map[string]string, error) {
 	collection, err := GetMongoDbCollection(dbName, collectionName)
 
@@ -77,6 +81,7 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 	return response, err
 }
 
+// Delete deletes a planet in database
 func (client PlanetsClient) Delete(id string) (int64, error) {
 	collection, err := GetMongoDbCollection(dbName, collectionName)
 

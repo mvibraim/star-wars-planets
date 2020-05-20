@@ -22,9 +22,9 @@ func (client *PlanetsClientMock) Get(filter bson.M) ([]Planet, error) {
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
-	} else {
-		return args.Get(0).([]Planet), args.Error(1)
 	}
+
+	return args.Get(0).([]Planet), args.Error(1)
 }
 
 func (client *PlanetsClientMock) Create(body string) (map[string]string, error) {
@@ -32,9 +32,9 @@ func (client *PlanetsClientMock) Create(body string) (map[string]string, error) 
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
-	} else {
-		return args.Get(0).(map[string]string), args.Error(1)
 	}
+
+	return args.Get(0).(map[string]string), args.Error(1)
 }
 
 func (client *PlanetsClientMock) Delete(id string) (int64, error) {

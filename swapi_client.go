@@ -7,11 +7,13 @@ import (
 	"net/http"
 )
 
+// SwapiPlanetsBody represents the useful body fields from SWAPI API response
 type SwapiPlanetsBody struct {
 	Next    string
 	Results []PlanetInfo
 }
 
+// PlanetInfo represents the useful planet fields
 type PlanetInfo struct {
 	Name  string
 	Films []string
@@ -80,6 +82,7 @@ func fetchSwapiPlanetsBody(planetsURL string) SwapiPlanetsBody {
 	return body
 }
 
+// IndexFilmsCountByName indexes the filmsCount by name
 func IndexFilmsCountByName(body SwapiPlanetsBody, allFilmsCountIndexedByName []map[string]int) []map[string]int {
 	for _, planet := range body.Results {
 		filmsCount := len(planet.Films)

@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// GetMongoDbConnection gets the MongoDB connection
 func GetMongoDbConnection() (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -26,6 +27,7 @@ func GetMongoDbConnection() (*mongo.Client, error) {
 	return client, nil
 }
 
+// GetMongoDbCollection gets the MongoDB collection
 func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collection, error) {
 	client, err := GetMongoDbConnection()
 
