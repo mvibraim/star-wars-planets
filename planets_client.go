@@ -60,13 +60,13 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 	json.Unmarshal([]byte(body), &planet)
 
 	conn := getRedisConn()
-	filmsCount, _ := getCache(conn, strings.ToLower(planet.Name))
+	movieAppearances, _ := getCache(conn, strings.ToLower(planet.Name))
 	conn.Close()
 
-	if filmsCount == -1 {
+	if movieAppearances == -1 {
 		planet.MovieAppearances = 0
 	} else {
-		planet.MovieAppearances = filmsCount
+		planet.MovieAppearances = movieAppearances
 	}
 
 	fmt.Printf("%s has %d movie appearances\n", planet.Name, planet.MovieAppearances)

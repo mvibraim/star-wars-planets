@@ -21,15 +21,15 @@ type PlanetInfo struct {
 
 const url = "https://swapi.dev/api/planets/"
 
-func cacheFilmsCountByName() {
+func cacheMovieAppearancesByName() {
 	fmt.Printf("%s\n", "Caching films count indexed by name")
 
-	allFilmsCountIndexedByName := fetchPlanets()
+	allMovieAppearancesIndexedByName := fetchPlanets()
 	conn := getRedisConn()
 
-	for _, filmData := range allFilmsCountIndexedByName {
-		for name, filmsCount := range filmData {
-			setCache(conn, name, filmsCount)
+	for _, filmData := range allMovieAppearancesIndexedByName {
+		for name, movieAppearances := range filmData {
+			setCache(conn, name, movieAppearances)
 		}
 	}
 
@@ -39,27 +39,27 @@ func cacheFilmsCountByName() {
 }
 
 func fetchPlanets() []map[string]int {
-	fmt.Printf("%s\n", "Fetching all planets from SWAPI API and indexing filmsCount by name, as []map[string]int{name: filmsCount}")
+	fmt.Printf("%s\n", "Fetching all planets from SWAPI API and indexing movie appearances by name, as []map[string]int{name: movieAppearances}")
 
 	channel := make(chan []map[string]int)
 
-	go fetchFilmsCountIndexedByName(channel)
+	go fetchMovieAppearancesIndexedByName(channel)
 
-	allFilmsCountIndexedByName := <-channel
+	allMovieAppearancesIndexedByName := <-channel
 
 	fmt.Printf("%s\n", "Fetched successfully")
 
-	return allFilmsCountIndexedByName
+	return allMovieAppearancesIndexedByName
 }
 
-func fetchFilmsCountIndexedByName(channel chan []map[string]int) {
+func fetchMovieAppearancesIndexedByName(channel chan []map[string]int) {
 	planetsURL := url
-	var allFilmsCountIndexedByName []map[string]int
+	var allMovieAppearancesIndexedByName []map[string]int
 
 	for {
 		body := fetchSwapiPlanetsBody(planetsURL)
 
-		allFilmsCountIndexedByName = IndexFilmsCountByName(body, allFilmsCountIndexedByName)
+		allMovieAppearancesIndexedByName = IndexMovieAppearancesByName(body, allMovieAppearancesIndexedByName)
 
 		if body.Next == "" {
 			break
@@ -68,7 +68,7 @@ func fetchFilmsCountIndexedByName(channel chan []map[string]int) {
 		}
 	}
 
-	channel <- allFilmsCountIndexedByName
+	channel <- allMovieAppearancesIndexedByName
 }
 
 func fetchSwapiPlanetsBody(planetsURL string) SwapiPlanetsBody {
@@ -82,16 +82,16 @@ func fetchSwapiPlanetsBody(planetsURL string) SwapiPlanetsBody {
 	return body
 }
 
-// IndexFilmsCountByName indexes the filmsCount by name
-func IndexFilmsCountByName(body SwapiPlanetsBody, allFilmsCountIndexedByName []map[string]int) []map[string]int {
+// IndexMovieAppearancesByName indexes the movie appearances by name
+func IndexMovieAppearancesByName(body SwapiPlanetsBody, allMovieAppearancesIndexedByName []map[string]int) []map[string]int {
 	for _, planet := range body.Results {
-		filmsCount := len(planet.Films)
+		movieAppearances := len(planet.Films)
 		name := planet.Name
 
-		indexedByName := map[string]int{name: filmsCount}
+		indexedByName := map[string]int{name: movieAppearances}
 
-		allFilmsCountIndexedByName = append(allFilmsCountIndexedByName, indexedByName)
+		allMovieAppearancesIndexedByName = append(allMovieAppearancesIndexedByName, indexedByName)
 	}
 
-	return allFilmsCountIndexedByName
+	return allMovieAppearancesIndexedByName
 }

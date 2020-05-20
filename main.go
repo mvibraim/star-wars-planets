@@ -11,7 +11,7 @@ import (
 var config = parseConfig()
 
 func main() {
-	cacheFilmsCountByName()
+	cacheMovieAppearancesByName()
 
 	app := fiber.New()
 

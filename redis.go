@@ -26,8 +26,8 @@ func newRedisPool() *redis.Pool {
 	}
 }
 
-func setCache(conn redis.Conn, name string, filmsCount int) error {
-	_, err := conn.Do("SET", strings.ToLower(name), filmsCount)
+func setCache(conn redis.Conn, name string, movieAppearances int) error {
+	_, err := conn.Do("SET", strings.ToLower(name), movieAppearances)
 
 	if err != nil {
 		return err
@@ -37,13 +37,13 @@ func setCache(conn redis.Conn, name string, filmsCount int) error {
 }
 
 func getCache(c redis.Conn, name string) (int, error) {
-	filmsCount, err := redis.Int(c.Do("GET", name))
+	movieAppearances, err := redis.Int(c.Do("GET", name))
 
 	if err == redis.ErrNil {
 		return -1, nil
 	} else if err != nil {
 		return -1, err
 	} else {
-		return filmsCount, nil
+		return movieAppearances, nil
 	}
 }
