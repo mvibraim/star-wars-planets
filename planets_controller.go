@@ -8,7 +8,7 @@ import (
 
 type PlanetsControllers struct {
 	PlanetsClient interface {
-		Get(filter bson.M) ([]primitive.M, error)
+		Get(filter bson.M) ([]Planet, error)
 		Create(body string) (map[string]string, error)
 		Delete(id string) (int64, error)
 	}
@@ -28,8 +28,8 @@ func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 
 	results, err := ctr.PlanetsClient.Get(filter)
 
-	if results == nil && err == nil {
-		c.SendStatus(404)
+	if len(results) == 0 && err == nil {
+		c.Status(404).JSON(results)
 	} else if err != nil {
 		c.Status(500).JSON(err)
 	} else {

@@ -18,17 +18,17 @@ type Planet struct {
 	Name             string `json:"name,omitempty"`
 	Weather          string `json:"weather,omitempty"`
 	Terrain          string `json:"terrain,omitempty"`
-	MovieAppearances int    `bson:"movie_appearances"`
+	MovieAppearances int    `bson:"movie_appearances" json:"-"`
 }
 
-func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
+func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
 	collection, err := GetMongoDbCollection(dbName, collectionName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var results []primitive.M
+	var results []Planet
 	cur, err := collection.Find(context.Background(), filter)
 	defer cur.Close(context.Background())
 
@@ -39,7 +39,7 @@ func (client PlanetsClient) Get(filter bson.M) ([]primitive.M, error) {
 	cur.All(context.Background(), &results)
 
 	if results == nil {
-		return nil, nil
+		return []Planet{}, nil
 	}
 
 	return results, err

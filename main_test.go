@@ -11,20 +11,19 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PlanetsClientMock struct {
 	mock.Mock
 }
 
-func (client *PlanetsClientMock) Get(filter bson.M) ([]primitive.M, error) {
+func (client *PlanetsClientMock) Get(filter bson.M) ([]Planet, error) {
 	args := client.Called(filter)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	} else {
-		return args.Get(0).([]primitive.M), args.Error(1)
+		return args.Get(0).([]Planet), args.Error(1)
 	}
 }
 
@@ -45,7 +44,7 @@ func (client *PlanetsClientMock) Delete(id string) (int64, error) {
 
 func TestGetPlanetsSuccessfully(t *testing.T) {
 	filter := bson.M{}
-	response := []bson.M{{"foo": "bar", "hello": "world", "pi": 3.14159}}
+	response := []Planet{{Name: "bar", Terrain: "world", Weather: "cold"}}
 
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return(response, nil)
@@ -69,7 +68,7 @@ func TestDontGetPlanetsDueToNotFound(t *testing.T) {
 	filter := bson.M{}
 
 	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Get", filter).Return(nil, nil)
+	planetsClientMock.On("Get", filter).Return([]Planet{}, nil)
 
 	ctr := PlanetsControllers{}
 	ctr.PlanetsClient = planetsClientMock
