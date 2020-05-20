@@ -18,7 +18,7 @@ type PlanetsClient struct{}
 // Planet represents each record in Planets collection
 type Planet struct {
 	Name             string `json:"name,omitempty"`
-	Weather          string `json:"weather,omitempty"`
+	Climate          string `json:"climate,omitempty"`
 	Terrain          string `json:"terrain,omitempty"`
 	MovieAppearances int    `bson:"movie_appearances" json:"-"`
 }

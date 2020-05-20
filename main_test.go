@@ -44,7 +44,7 @@ func (client *PlanetsClientMock) Delete(id string) (int64, error) {
 
 func TestGetPlanetsSuccessfully(t *testing.T) {
 	filter := bson.M{}
-	response := []Planet{{Name: "bar", Terrain: "world", Weather: "cold"}}
+	response := []Planet{{Name: "bar", Terrain: "world", Climate: "cold"}}
 
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return(response, nil)
@@ -108,7 +108,7 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 	body, _ := json.Marshal(map[string]interface{}{
 		"name":    "earth",
 		"terrain": "grass",
-		"weather": "rainy",
+		"climate": "rainy",
 	})
 
 	var response map[string]string
