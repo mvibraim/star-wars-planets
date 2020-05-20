@@ -13,6 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func init() {
+	isTesting = true
+}
+
 type PlanetsClientMock struct {
 	mock.Mock
 }

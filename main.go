@@ -1,17 +1,30 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gofiber/compression"
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/helmet"
 	"github.com/gofiber/logger"
 	"github.com/gofiber/recover"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var config = parseConfig()
+var config Config
+var mongoClient *mongo.Client
+var mongoConnectionError error
+var isTesting bool = false
 
 func main() {
-	cacheMovieAppearancesByName()
+	config = parseConfig()
+
+	fmt.Printf("%t\n", isTesting)
+
+	if !isTesting {
+		mongoClient, mongoConnectionError = GetMongoDbConnection()
+		cacheMovieAppearancesByName()
+	}
 
 	app := fiber.New()
 

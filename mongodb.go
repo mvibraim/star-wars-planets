@@ -9,8 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var mongoConnection, errConnection = GetMongoDbConnection()
-
 // GetMongoDbConnection gets the MongoDB connection
 func GetMongoDbConnection() (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(config.MongoDBHost)
@@ -31,11 +29,11 @@ func GetMongoDbConnection() (*mongo.Client, error) {
 
 // GetMongoDbCollection gets the MongoDB collection
 func GetMongoDbCollection(DbName string, CollectionName string) (*mongo.Collection, error) {
-	if errConnection != nil {
-		return nil, errConnection
+	if mongoConnectionError != nil {
+		return nil, mongoConnectionError
 	}
 
-	collection := mongoConnection.Database(DbName).Collection(CollectionName)
+	collection := mongoClient.Database(DbName).Collection(CollectionName)
 
 	return collection, nil
 }

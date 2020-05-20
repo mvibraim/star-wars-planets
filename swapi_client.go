@@ -22,7 +22,7 @@ type PlanetInfo struct {
 const url = "https://swapi.dev/api/planets/"
 
 func cacheMovieAppearancesByName() {
-	fmt.Printf("%s\n", "Caching films count indexed by name")
+	fmt.Printf("%s\n", "Caching movie appearances indexed by name")
 
 	allMovieAppearancesIndexedByName := fetchPlanets()
 	conn := getRedisConn()
