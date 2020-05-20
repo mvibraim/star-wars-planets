@@ -1,0 +1,24 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.1.2
+
+executors:
+  default-executor:
+    docker:
+      - image: circleci/golang:1.14.3-buster
+
+jobs:
+  build:
+    executor: default-executor
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run: go build
+
+workflows:
+  main:
+    jobs:
+      - build
