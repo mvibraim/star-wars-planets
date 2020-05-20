@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gofiber/compression"
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/helmet"
@@ -18,8 +16,6 @@ var isTesting bool = false
 
 func main() {
 	config = parseConfig()
-
-	fmt.Printf("%t\n", isTesting)
 
 	if !isTesting {
 		mongoClient, mongoConnectionError = GetMongoDbConnection()
