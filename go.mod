@@ -3,6 +3,7 @@ module star-wars-planets
 go 1.14
 
 require (
+	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/gofiber/compression v0.0.3
 	github.com/gofiber/fiber v1.9.6
 	github.com/gofiber/helmet v0.0.3

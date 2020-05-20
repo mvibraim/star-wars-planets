@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const dbName = "planets-db"
 const collectionName = "planets"
 
 // PlanetsClient represents the client for Planet collection
@@ -25,7 +25,7 @@ type Planet struct {
 
 // Get return planets from database
 func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
-	collection, err := GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
 
 // Create insert a planet in database
 func (client PlanetsClient) Create(body string) (map[string]string, error) {
-	collection, err := GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
 
 	if err != nil {
 		return nil, err
@@ -69,6 +69,8 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 		planet.MovieAppearances = filmsCount
 	}
 
+	fmt.Printf("%s has %d movie appearances\n", planet.Name, planet.MovieAppearances)
+
 	res, err := collection.InsertOne(context.Background(), planet)
 
 	if err != nil {
@@ -83,7 +85,7 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 // Delete deletes a planet in database
 func (client PlanetsClient) Delete(id string) (int64, error) {
-	collection, err := GetMongoDbCollection(dbName, collectionName)
+	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
 
 	if err != nil {
 		return -1, err

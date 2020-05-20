@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/recover"
 )
 
-const port = 3000
+var config = parseConfig()
 
 func main() {
 	cacheFilmsCountByName()
@@ -22,7 +22,7 @@ func main() {
 
 	PlanetsRoutes(app)
 
-	app.Listen(port)
+	app.Listen(config.Port)
 }
 
 // PlanetsRoutes setup all the routes related to planets

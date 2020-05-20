@@ -11,7 +11,7 @@ import (
 
 // GetMongoDbConnection gets the MongoDB connection
 func GetMongoDbConnection() (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(config.MongoDBHost)
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {

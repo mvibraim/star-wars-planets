@@ -1,0 +1,8 @@
+README.md
+star-wars-planets
+.gitignore
+.git
+Dockerfile
+Makefile
+docker-compose.yml
+.circleci

@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    container_name: star_wars_planets_app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo-db
+      - redis
+    environment:
+      - MONGODB_HOST=mongodb://mongo-db
+      - MONGODB_DATABASE=star-wars-planets
+      - REDIS_HOST=redis:6379
+      - REDIS_NETWORK=tcp
+      - PORT=3000
+
+  mongo-db:
+    image: bitnami/mongodb:4.2.6-debian-10-r41
+    container_name: mongo-db
+    restart: always
+
+  redis:
+    image: redis:6.0.3-alpine
+    container_name: redis
+    restart: always
