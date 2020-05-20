@@ -20,6 +20,8 @@ type PlanetInfo struct {
 const url = "https://swapi.dev/api/planets/"
 
 func cacheFilmsCountByName() {
+	fmt.Printf("%s\n", "Caching films count indexed by name")
+
 	allFilmsCountIndexedByName := fetchPlanets()
 	conn := getRedisConn()
 
@@ -28,6 +30,8 @@ func cacheFilmsCountByName() {
 			setCache(conn, name, filmsCount)
 		}
 	}
+
+	fmt.Printf("%s\n", "Cached successfully")
 
 	conn.Close()
 }
