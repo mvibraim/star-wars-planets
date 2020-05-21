@@ -2,7 +2,7 @@
 
 # Star Wars Planets
 
-Create, delete and list planets. If a created planet exists in Star Wars, the number of film appearances is saved as an attribute.
+Create, delete and list planets. If a created planet exists in Star Wars, the movie appearances is saved.
 
 Uses Redis to cache the movie appearances indexed by planet name on application startup.
 
@@ -14,7 +14,7 @@ All data provided by the user through the API is persisted in MongoDB along with
 - Fiber
 - MongoDB
 - Redis
-  
+
 ## Prerequisites
 
 - [Docker 18.06.0+](https://docs.docker.com/install/)
