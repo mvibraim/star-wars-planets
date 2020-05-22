@@ -14,8 +14,9 @@ type DatabaseHelper interface {
 
 type CollectionHelper interface {
 	Find(context.Context, interface{}) CursorHelper
-	InsertOne(context.Context, interface{}) (interface{}, error)
+	InsertOne(context.Context, interface{}) (*mongo.InsertOneResult, error)
 	DeleteOne(ctx context.Context, filter interface{}) (int64, error)
+	Indexes() IndexViewHelper
 }
 
 type CursorHelper interface {
@@ -26,6 +27,10 @@ type ClientHelper interface {
 	Database(string) DatabaseHelper
 	Connect() error
 	StartSession() (mongo.Session, error)
+}
+
+type IndexViewHelper interface {
+	CreateOne(ctx context.Context, model mongo.IndexModel, opts ...*options.CreateIndexesOptions) (string, error)
 }
 
 type mongoClient struct {
@@ -42,6 +47,10 @@ type mongoCollection struct {
 
 type mongoCursor struct {
 	c *mongo.Cursor
+}
+
+type mongoIndexView struct {
+	iv mongo.IndexView
 }
 
 type mongoSession struct {
@@ -86,9 +95,9 @@ func (mc *mongoCollection) Find(ctx context.Context, filter interface{}) CursorH
 	return &mongoCursor{c: cursor}
 }
 
-func (mc *mongoCollection) InsertOne(ctx context.Context, document interface{}) (interface{}, error) {
+func (mc *mongoCollection) InsertOne(ctx context.Context, document interface{}) (*mongo.InsertOneResult, error) {
 	res, err := mc.coll.InsertOne(ctx, document)
-	return res.InsertedID, err
+	return res, err
 }
 
 func (mc *mongoCollection) DeleteOne(ctx context.Context, filter interface{}) (int64, error) {
@@ -96,6 +105,15 @@ func (mc *mongoCollection) DeleteOne(ctx context.Context, filter interface{}) (i
 	return count.DeletedCount, err
 }
 
+func (mc *mongoCollection) Indexes() IndexViewHelper {
+	indexView := mc.coll.Indexes()
+	return &mongoIndexView{iv: indexView}
+}
+
 func (c *mongoCursor) All(ctx context.Context, results interface{}) error {
 	return c.c.All(ctx, results)
+}
+
+func (iv *mongoIndexView) CreateOne(ctx context.Context, model mongo.IndexModel, opts ...*options.CreateIndexesOptions) (string, error) {
+	return iv.iv.CreateOne(ctx, model, opts...)
 }

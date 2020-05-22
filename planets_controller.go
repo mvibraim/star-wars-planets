@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // PlanetsControllers represents the planet controller structure
@@ -45,7 +46,11 @@ func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 
 	resp, err := ctr.PlanetsClient.Create(c.Body())
 
-	if err != nil {
+	_, isWriteException := err.(mongo.WriteException)
+
+	if err != nil && isWriteException && err.(mongo.WriteException).WriteErrors[0].Code == 11000 {
+		c.Status(409).JSON(bson.M{"message": "'name' already exists"})
+	} else if err != nil {
 		c.Status(500).JSON(err)
 	} else {
 		c.Status(201).JSON(resp)

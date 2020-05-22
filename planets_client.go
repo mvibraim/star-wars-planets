@@ -44,13 +44,13 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 	fmt.Printf("%s has %d movie appearances\n", planet.Name, planet.MovieAppearances)
 
-	insertedID, err := planetsDB.Create(context.Background(), &planet)
+	res, err := planetsDB.Create(context.Background(), &planet)
 
 	if err != nil {
 		return nil, err
 	}
 
-	id, _ := insertedID.(primitive.ObjectID)
+	id, _ := res.InsertedID.(primitive.ObjectID)
 	response := map[string]string{"id": id.Hex()}
 
 	return response, err

@@ -5,24 +5,35 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 const collection = "planets"
 
 type PlanetsDatabase interface {
 	Get(context.Context, interface{}) ([]Planet, error)
-	Create(context.Context, *Planet) (interface{}, error)
+	Create(context.Context, *Planet) (*mongo.InsertOneResult, error)
 	Delete(context.Context, string) (int64, error)
+	CreateIndexes(context.Context, mongo.IndexModel) (string, error)
 }
 
 type planetsDatabase struct {
 	db DatabaseHelper
 }
 
-func createPlanetsDatabase() PlanetsDatabase {
+func setupPlanetsDatabase() PlanetsDatabase {
 	clientHelper, _ := NewClient(config.MongoDBHost)
 	databaseHelper := NewDatabase(config.MongoDBDatabase, clientHelper)
 	planetsDatabase := NewPlanetsDatabase(databaseHelper)
+
+	indexModel := mongo.IndexModel{
+		Keys:    bsonx.Doc{{"name", bsonx.Int32(1)}},
+		Options: options.Index().SetUnique(true),
+	}
+
+	planetsDatabase.CreateIndexes(context.Background(), indexModel)
 
 	return planetsDatabase
 }
@@ -44,7 +55,7 @@ func (planetDB *planetsDatabase) Get(ctx context.Context, filter interface{}) ([
 	return *planets, nil
 }
 
-func (planetDB *planetsDatabase) Create(ctx context.Context, planet *Planet) (interface{}, error) {
+func (planetDB *planetsDatabase) Create(ctx context.Context, planet *Planet) (*mongo.InsertOneResult, error) {
 	res, err := planetDB.db.Collection(collection).InsertOne(ctx, planet)
 	return res, err
 }
@@ -55,5 +66,10 @@ func (planetDB *planetsDatabase) Delete(ctx context.Context, id string) (int64, 
 
 	res, err := planetDB.db.Collection(collection).DeleteOne(ctx, filter)
 
+	return res, err
+}
+
+func (planetDB *planetsDatabase) CreateIndexes(ctx context.Context, indexModel mongo.IndexModel) (string, error) {
+	res, err := planetDB.db.Collection(collection).Indexes().CreateOne(ctx, indexModel)
 	return res, err
 }

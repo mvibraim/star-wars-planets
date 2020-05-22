@@ -17,7 +17,7 @@ var isTesting bool = false
 
 func main() {
 	if !isTesting {
-		planetsDB = createPlanetsDatabase()
+		planetsDB = setupPlanetsDatabase()
 		cacheMovieAppearancesByName()
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func init() {
@@ -134,6 +135,26 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 
 	assert := assert.New(t)
 	assert.Equal(201, resp.StatusCode, "they should be equal")
+}
+
+func TestDontCreatePlanetDueToConflict(t *testing.T) {
+	writeErrors := []mongo.WriteError{{Code: 11000}}
+	planetsClientMock := new(PlanetsClientMock)
+	planetsClientMock.On("Create", mock.Anything).Return(nil, mongo.WriteException{WriteErrors: writeErrors})
+
+	ctr := PlanetsControllers{}
+	ctr.PlanetsClient = planetsClientMock
+
+	app := fiber.New()
+	app.Post("/v1/planets", ctr.Create)
+
+	req := httptest.NewRequest("POST", "/v1/planets", nil)
+	resp, _ := app.Test(req)
+
+	planetsClientMock.AssertExpectations(t)
+
+	assert := assert.New(t)
+	assert.Equal(409, resp.StatusCode, "they should be equal")
 }
 
 func TestDontCreatePlanetDueToInternalError(t *testing.T) {

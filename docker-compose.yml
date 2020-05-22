@@ -21,6 +21,8 @@ services:
     image: bitnami/mongodb:4.2.6-debian-10-r41
     container_name: mongo-db
     restart: always
+    ports:
+      - "27017:27017"
 
   redis:
     image: redis:6.0.3-alpine
