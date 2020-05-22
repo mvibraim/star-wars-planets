@@ -31,7 +31,7 @@ TODO
   
 ## Tests
 
-Run `go test`
+`go test` run all the tests below
 
 - Main unit test
 
