@@ -17,7 +17,7 @@ type PlanetsControllers struct {
 
 // Index render the returned planets as JSON
 func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
-	var filter bson.M = bson.M{}
+	filter := bson.M{}
 
 	if c.Query("id") != "" {
 		id := c.Query("id")

@@ -9,16 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var config Config
-var mongoClient *mongo.Client
+var planetsDB PlanetsDatabase
+var config Config = parseConfig()
+var mongoBDClient *mongo.Client
 var mongoConnectionError error
 var isTesting bool = false
 
 func main() {
-	config = parseConfig()
-
 	if !isTesting {
-		mongoClient, mongoConnectionError = GetMongoDbConnection()
+		planetsDB = createPlanetsDatabase()
 		cacheMovieAppearancesByName()
 	}
 

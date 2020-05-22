@@ -10,8 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const collectionName = "planets"
-
 // PlanetsClient represents the client for Planet collection
 type PlanetsClient struct{}
 
@@ -25,37 +23,12 @@ type Planet struct {
 
 // Get return planets from database
 func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
-	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var results []Planet
-	cur, err := collection.Find(context.Background(), filter)
-	defer cur.Close(context.Background())
-
-	if err != nil {
-		return nil, err
-	}
-
-	cur.All(context.Background(), &results)
-
-	if results == nil {
-		return []Planet{}, nil
-	}
-
-	return results, err
+	planets, err := planetsDB.Get(context.Background(), filter)
+	return planets, err
 }
 
 // Create insert a planet in database
 func (client PlanetsClient) Create(body string) (map[string]string, error) {
-	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
-
-	if err != nil {
-		return nil, err
-	}
-
 	var planet Planet
 	json.Unmarshal([]byte(body), &planet)
 
@@ -71,13 +44,13 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 	fmt.Printf("%s has %d movie appearances\n", planet.Name, planet.MovieAppearances)
 
-	res, err := collection.InsertOne(context.Background(), planet)
+	insertedID, err := planetsDB.Create(context.Background(), &planet)
 
 	if err != nil {
 		return nil, err
 	}
 
-	id, _ := res.InsertedID.(primitive.ObjectID)
+	id, _ := insertedID.(primitive.ObjectID)
 	response := map[string]string{"id": id.Hex()}
 
 	return response, err
@@ -85,18 +58,11 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 // Delete deletes a planet in database
 func (client PlanetsClient) Delete(id string) (int64, error) {
-	collection, err := GetMongoDbCollection(config.MongoDBDatabase, collectionName)
+	deletedCount, err := planetsDB.Delete(context.Background(), id)
 
 	if err != nil {
 		return -1, err
 	}
 
-	objID, _ := primitive.ObjectIDFromHex(id)
-	result, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
-
-	if err != nil {
-		return -1, err
-	}
-
-	return result.DeletedCount, nil
+	return deletedCount, nil
 }
