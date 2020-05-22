@@ -4,6 +4,8 @@ go 1.14
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-playground/validator/v10 v10.3.0 // indirect
 	github.com/gofiber/compression v0.0.3
 	github.com/gofiber/fiber v1.9.6
 	github.com/gofiber/helmet v0.0.3

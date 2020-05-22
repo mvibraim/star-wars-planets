@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -155,6 +156,25 @@ func TestDontCreatePlanetDueToConflict(t *testing.T) {
 
 	assert := assert.New(t)
 	assert.Equal(409, resp.StatusCode, "they should be equal")
+}
+
+func TestDontCreatePlanetDueToBadRequest(t *testing.T) {
+	planetsClientMock := new(PlanetsClientMock)
+	planetsClientMock.On("Create", mock.Anything).Return(nil, validator.ValidationErrors{})
+
+	ctr := PlanetsControllers{}
+	ctr.PlanetsClient = planetsClientMock
+
+	app := fiber.New()
+	app.Post("/v1/planets", ctr.Create)
+
+	req := httptest.NewRequest("POST", "/v1/planets", nil)
+	resp, _ := app.Test(req)
+
+	planetsClientMock.AssertExpectations(t)
+
+	assert := assert.New(t)
+	assert.Equal(400, resp.StatusCode, "they should be equal")
 }
 
 func TestDontCreatePlanetDueToInternalError(t *testing.T) {

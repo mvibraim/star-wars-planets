@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -15,9 +16,9 @@ type PlanetsClient struct{}
 
 // Planet represents each record in Planets collection
 type Planet struct {
-	Name             string `json:"name,omitempty"`
-	Climate          string `json:"climate,omitempty"`
-	Terrain          string `json:"terrain,omitempty"`
+	Name             string `json:"name,omitempty" validate:"required"`
+	Climate          string `json:"climate,omitempty" validate:"required"`
+	Terrain          string `json:"terrain,omitempty" validate:"required"`
 	MovieAppearances int    `bson:"movie_appearances" json:"-"`
 }
 
@@ -31,6 +32,13 @@ func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
 func (client PlanetsClient) Create(body string) (map[string]string, error) {
 	var planet Planet
 	json.Unmarshal([]byte(body), &planet)
+
+	v := validator.New()
+	validationErrors := v.Struct(planet)
+
+	if validationErrors != nil {
+		return nil, validationErrors
+	}
 
 	conn := getRedisConn()
 	movieAppearances, _ := getCache(conn, strings.ToLower(planet.Name))

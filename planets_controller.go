@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -56,8 +57,19 @@ func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 	resp, err := ctr.PlanetsClient.Create(c.Body())
 
 	_, isWriteException := err.(mongo.WriteException)
+	_, isValidationErrors := err.(validator.ValidationErrors)
 
-	if err != nil && isWriteException && err.(mongo.WriteException).WriteErrors[0].Code == 11000 {
+	if err != nil && isValidationErrors {
+		fmt.Printf("%s\n", "Can't create planet due to validation errors")
+
+		validationErrors := []bson.M{}
+
+		for _, e := range err.(validator.ValidationErrors) {
+			validationErrors = append(validationErrors, bson.M{"param": e.Field(), "error": e.Tag()})
+		}
+
+		c.Status(400).JSON(bson.M{"errors": validationErrors})
+	} else if err != nil && isWriteException && err.(mongo.WriteException).WriteErrors[0].Code == 11000 {
 		fmt.Printf("%s\n", "Can't create planet due to conflict")
 		c.Status(409).JSON(bson.M{"message": "'name' already exists"})
 	} else if err != nil {

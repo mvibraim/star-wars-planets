@@ -24,9 +24,7 @@ All data provided by the user through the API is persisted in MongoDB along with
 - Cache SWAPI planets data as key-value `planetName: moviesAppearances`
 - `name` as unique index
 - Application logs
-  
-TODO
-- Validate required fields in payload
+- Validate all payload fields as required
 
 ## Tests
 
@@ -35,6 +33,7 @@ TODO
 - Main unit test
 
 TODO
+
 - Cache unit test
 - Planets controller unit test
 - Planets client unit test
