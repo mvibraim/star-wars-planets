@@ -19,8 +19,6 @@ type PlanetInfo struct {
 	Films []string
 }
 
-const url = "https://swapi.dev/api/planets/"
-
 func cacheMovieAppearancesByName() {
 	fmt.Printf("%s\n", "Caching movie appearances indexed by name")
 
@@ -53,7 +51,7 @@ func fetchPlanets() []map[string]int {
 }
 
 func fetchMovieAppearancesIndexedByName(channel chan []map[string]int) {
-	planetsURL := url
+	planetsURL := config.SwapiURL
 	var allMovieAppearancesIndexedByName []map[string]int
 
 	for {
