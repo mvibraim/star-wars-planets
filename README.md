@@ -27,8 +27,7 @@ All data provided by the user through the API is persisted in MongoDB along with
   
 TODO
 - Validate required fields in payload
-- List pagination
-  
+
 ## Tests
 
 `go test` run all the tests below
