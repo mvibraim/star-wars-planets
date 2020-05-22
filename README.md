@@ -15,6 +15,33 @@ All data provided by the user through the API is persisted in MongoDB along with
 - MongoDB
 - Redis
 
+## Features
+
+- Create planet
+- Get all planets (only `name`, `climate` and `terrain` is shown)
+- Get planets filter by `id` or `name` (only `name`, `climate` and `terrain` is shown)
+- Delete planet
+- Cache SWAPI planets data as key-value `planetName: moviesAppearances`
+- `name` as unique index
+- Application logs
+  
+TODO
+- Validate required fields in payload
+- List pagination
+  
+## Tests
+
+Run `go test`
+
+- Main unit test
+
+TODO
+- Cache unit test
+- Planets controller unit test
+- Planets client unit test
+- SWAPI client unit test
+- Main integration test
+
 ## Prerequisites
 
 - [Docker 18.06.0+](https://docs.docker.com/install/)
@@ -31,7 +58,7 @@ make -v
 
 ## Usage
 
-1. Run `make` from root project
+1. Run `make`
 
 2. Create a planet
 
