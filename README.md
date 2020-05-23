@@ -18,8 +18,8 @@ All data provided by the user through the API is persisted in MongoDB along with
 ## Features
 
 - Create planet
-- Get all planets (only `name`, `climate` and `terrain` is shown)
-- Get planets filtered by `id` or `name` (only `name`, `climate` and `terrain` is shown)
+- Get all planets (only `name`, `climate` and `terrain` are shown)
+- Get planets filtered by `id` or `name` (only `name`, `climate` and `terrain` are shown)
 - Delete planet
 - Cache SWAPI planets data as key-value `planetName: moviesAppearances`
 - `name` as unique index
