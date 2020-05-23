@@ -34,7 +34,7 @@ All data provided by the user through the API is persisted in MongoDB along with
 
 TODO
 
-- Cache unit test
+- Planets cache unit test
 - Planets domain unit test
 - SWAPI client unit test
 - Planets API integration test

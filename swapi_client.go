@@ -7,6 +7,16 @@ import (
 	"net/http"
 )
 
+type SwapiClient struct {
+	PlanetsCache PlanetsCacheHelper
+}
+
+func CreateSwapiClient() *SwapiClient {
+	return &SwapiClient{
+		PlanetsCache: CreatePlanetsCache(),
+	}
+}
+
 // SwapiPlanetsBody represents the useful body fields from SWAPI API response
 type SwapiPlanetsBody struct {
 	Next    string
@@ -19,7 +29,7 @@ type PlanetInfo struct {
 	Films []string
 }
 
-func cacheMovieAppearancesByName() {
+func (sc *SwapiClient) cacheMovieAppearancesByName() {
 	fmt.Printf("%s\n", "Caching movie appearances indexed by name")
 
 	allMovieAppearancesIndexedByName := fetchPlanets()
@@ -27,7 +37,7 @@ func cacheMovieAppearancesByName() {
 
 	for _, filmData := range allMovieAppearancesIndexedByName {
 		for name, movieAppearances := range filmData {
-			setCache(conn, name, movieAppearances)
+			sc.PlanetsCache.setCache(name, movieAppearances)
 		}
 	}
 

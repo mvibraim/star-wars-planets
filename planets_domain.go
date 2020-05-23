@@ -20,7 +20,8 @@ type PlanetsDBHelper interface {
 
 // PlanetsDomain represents the client for Planet collection
 type PlanetsDomain struct {
-	PlanetsDB PlanetsDBHelper
+	PlanetsDB    PlanetsDBHelper
+	PlanetsCache PlanetsCacheHelper
 }
 
 // Planet represents each record in Planets collection
@@ -33,7 +34,8 @@ type Planet struct {
 
 func CreatePlanetsDomain() *PlanetsDomain {
 	return &PlanetsDomain{
-		PlanetsDB: CreatePlanetsDB(),
+		PlanetsDB:    CreatePlanetsDB(),
+		PlanetsCache: CreatePlanetsCache(),
 	}
 }
 
@@ -55,9 +57,7 @@ func (domain *PlanetsDomain) Create(body string) (map[string]string, error) {
 		return nil, validationErrors
 	}
 
-	conn := getRedisConn()
-	movieAppearances, _ := getCache(conn, strings.ToLower(planet.Name))
-	conn.Close()
+	movieAppearances, _ := domain.PlanetsCache.getCache(strings.ToLower(planet.Name))
 
 	if movieAppearances == -1 {
 		planet.MovieAppearances = 0
