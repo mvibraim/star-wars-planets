@@ -10,12 +10,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// PlanetsControllers represents the planet controller structure
+type PlanetsDomain interface {
+	Get(filter bson.M) ([]Planet, error)
+	Create(body string) (map[string]string, error)
+	Delete(id string) (int64, error)
+}
+
+// PlanetsController represents the planet controller structure
 type PlanetsController struct {
-	PlanetsClient interface {
-		Get(filter bson.M) ([]Planet, error)
-		Create(body string) (map[string]string, error)
-		Delete(id string) (int64, error)
+	Planets PlanetsDomain
+}
+
+func CreatePlanetsDomain() *PlanetsClient {
+	return &PlanetsClient{}
+}
+
+func CreatePlanetsController() *PlanetsController {
+	return &PlanetsController{
+		Planets: CreatePlanetsDomain(),
 	}
 }
 
@@ -34,7 +46,7 @@ func (ctr *PlanetsController) Index(c *fiber.Ctx) {
 		filter = bson.M{"name": name}
 	}
 
-	results, err := ctr.PlanetsClient.Get(filter)
+	results, err := ctr.Planets.Get(filter)
 
 	if len(results) == 0 && err == nil {
 		fmt.Printf("%s\n", "Planets not found")
@@ -54,7 +66,7 @@ func (ctr *PlanetsController) Create(c *fiber.Ctx) {
 
 	c.Accepts("application/json")
 
-	resp, err := ctr.PlanetsClient.Create(c.Body())
+	resp, err := ctr.Planets.Create(c.Body())
 
 	_, isWriteException := err.(mongo.WriteException)
 	_, isValidationErrors := err.(validator.ValidationErrors)
@@ -85,7 +97,7 @@ func (ctr *PlanetsController) Create(c *fiber.Ctx) {
 func (ctr *PlanetsController) Delete(c *fiber.Ctx) {
 	fmt.Printf("%s\n", "Deleting planet")
 
-	deletedCount, err := ctr.PlanetsClient.Delete(c.Params("id"))
+	deletedCount, err := ctr.Planets.Delete(c.Params("id"))
 
 	if deletedCount == 0 {
 		fmt.Printf("%s\n", "Planet not found")

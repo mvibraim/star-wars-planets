@@ -35,9 +35,7 @@ func main() {
 
 // PlanetsRoutes setup all the routes related to planets
 func PlanetsRoutes(app *fiber.App) {
-	planetsClient := new(PlanetsClient)
-	ctr := PlanetsController{}
-	ctr.PlanetsClient = planetsClient
+	ctr := CreatePlanetsController()
 
 	planets := app.Group("v1/planets")
 
