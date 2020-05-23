@@ -33,7 +33,6 @@ func (sc *SwapiClient) cacheMovieAppearancesByName() {
 	fmt.Printf("%s\n", "Caching movie appearances indexed by name")
 
 	allMovieAppearancesIndexedByName := fetchPlanets()
-	conn := getRedisConn()
 
 	for _, filmData := range allMovieAppearancesIndexedByName {
 		for name, movieAppearances := range filmData {
@@ -42,8 +41,6 @@ func (sc *SwapiClient) cacheMovieAppearancesByName() {
 	}
 
 	fmt.Printf("%s\n", "Cached successfully")
-
-	conn.Close()
 }
 
 func fetchPlanets() []map[string]int {
