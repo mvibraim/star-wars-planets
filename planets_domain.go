@@ -9,10 +9,19 @@ import (
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// PlanetsClient represents the client for Planet collection
-type PlanetsClient struct{}
+type PlanetsDBHelper interface {
+	Get(context.Context, interface{}) ([]Planet, error)
+	Create(context.Context, *Planet) (*mongo.InsertOneResult, error)
+	Delete(context.Context, string) (int64, error)
+}
+
+// PlanetsDomain represents the client for Planet collection
+type PlanetsDomain struct {
+	PlanetsDB PlanetsDBHelper
+}
 
 // Planet represents each record in Planets collection
 type Planet struct {
@@ -22,14 +31,20 @@ type Planet struct {
 	MovieAppearances int    `bson:"movie_appearances" json:"-"`
 }
 
+func CreatePlanetsDomain() *PlanetsDomain {
+	return &PlanetsDomain{
+		PlanetsDB: CreatePlanetsDB(),
+	}
+}
+
 // Get return planets from database
-func (client PlanetsClient) Get(filter bson.M) ([]Planet, error) {
-	planets, err := planetsDB.Get(context.Background(), filter)
+func (domain *PlanetsDomain) Get(filter bson.M) ([]Planet, error) {
+	planets, err := domain.PlanetsDB.Get(context.Background(), filter)
 	return planets, err
 }
 
 // Create insert a planet in database
-func (client PlanetsClient) Create(body string) (map[string]string, error) {
+func (domain *PlanetsDomain) Create(body string) (map[string]string, error) {
 	var planet Planet
 	json.Unmarshal([]byte(body), &planet)
 
@@ -52,7 +67,7 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 
 	fmt.Printf("%s has %d movie appearances\n", planet.Name, planet.MovieAppearances)
 
-	res, err := planetsDB.Create(context.Background(), &planet)
+	res, err := domain.PlanetsDB.Create(context.Background(), &planet)
 
 	if err != nil {
 		return nil, err
@@ -65,8 +80,8 @@ func (client PlanetsClient) Create(body string) (map[string]string, error) {
 }
 
 // Delete deletes a planet in database
-func (client PlanetsClient) Delete(id string) (int64, error) {
-	deletedCount, err := planetsDB.Delete(context.Background(), id)
+func (domain *PlanetsDomain) Delete(id string) (int64, error) {
+	deletedCount, err := domain.PlanetsDB.Delete(context.Background(), id)
 
 	if err != nil {
 		return -1, err

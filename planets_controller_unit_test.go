@@ -15,15 +15,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func init() {
-	isTesting = true
-}
-
-type PlanetsClientMock struct {
+type PlanetsDomainMock struct {
 	mock.Mock
 }
 
-func (client *PlanetsClientMock) Get(filter bson.M) ([]Planet, error) {
+func (client *PlanetsDomainMock) Get(filter bson.M) ([]Planet, error) {
 	args := client.Called(filter)
 
 	if args.Get(0) == nil {
@@ -33,7 +29,7 @@ func (client *PlanetsClientMock) Get(filter bson.M) ([]Planet, error) {
 	return args.Get(0).([]Planet), args.Error(1)
 }
 
-func (client *PlanetsClientMock) Create(body string) (map[string]string, error) {
+func (client *PlanetsDomainMock) Create(body string) (map[string]string, error) {
 	args := client.Called(body)
 
 	if args.Get(0) == nil {
@@ -43,7 +39,7 @@ func (client *PlanetsClientMock) Create(body string) (map[string]string, error) 
 	return args.Get(0).(map[string]string), args.Error(1)
 }
 
-func (client *PlanetsClientMock) Delete(id string) (int64, error) {
+func (client *PlanetsDomainMock) Delete(id string) (int64, error) {
 	args := client.Called(id)
 	return args.Get(0).(int64), args.Error(1)
 }
@@ -52,11 +48,12 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 	filter := bson.M{}
 	response := []Planet{{Name: "bar", Terrain: "world", Climate: "cold"}}
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Get", filter).Return(response, nil)
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Get", filter).Return(response, nil)
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Get("/v1/planets", ctr.Index)
@@ -64,7 +61,7 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(200, resp.StatusCode, "they should be equal")
@@ -73,11 +70,12 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 func TestDontGetPlanetsDueToNotFound(t *testing.T) {
 	filter := bson.M{}
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Get", filter).Return([]Planet{}, nil)
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Get", filter).Return([]Planet{}, nil)
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Get("/v1/planets", ctr.Index)
@@ -85,18 +83,19 @@ func TestDontGetPlanetsDueToNotFound(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(404, resp.StatusCode, "they should be equal")
 }
 
 func TestDontGetPlanetsDueToInternalError(t *testing.T) {
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Get", mock.Anything).Return(nil, errors.New(""))
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Get", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Get("/v1/planets", ctr.Index)
@@ -104,7 +103,7 @@ func TestDontGetPlanetsDueToInternalError(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(500, resp.StatusCode, "they should be equal")
@@ -120,11 +119,12 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 	var response map[string]string
 	json.Unmarshal(body, &response)
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Create", mock.Anything).Return(response, nil)
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Create", mock.Anything).Return(response, nil)
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Post("/v1/planets", ctr.Create)
@@ -132,7 +132,7 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 	req := httptest.NewRequest("POST", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(201, resp.StatusCode, "they should be equal")
@@ -140,11 +140,12 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 
 func TestDontCreatePlanetDueToConflict(t *testing.T) {
 	writeErrors := []mongo.WriteError{{Code: 11000}}
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Create", mock.Anything).Return(nil, mongo.WriteException{WriteErrors: writeErrors})
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Create", mock.Anything).Return(nil, mongo.WriteException{WriteErrors: writeErrors})
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Post("/v1/planets", ctr.Create)
@@ -152,18 +153,19 @@ func TestDontCreatePlanetDueToConflict(t *testing.T) {
 	req := httptest.NewRequest("POST", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(409, resp.StatusCode, "they should be equal")
 }
 
 func TestDontCreatePlanetDueToBadRequest(t *testing.T) {
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Create", mock.Anything).Return(nil, validator.ValidationErrors{})
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Create", mock.Anything).Return(nil, validator.ValidationErrors{})
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Post("/v1/planets", ctr.Create)
@@ -171,18 +173,19 @@ func TestDontCreatePlanetDueToBadRequest(t *testing.T) {
 	req := httptest.NewRequest("POST", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(400, resp.StatusCode, "they should be equal")
 }
 
 func TestDontCreatePlanetDueToInternalError(t *testing.T) {
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Create", mock.Anything).Return(nil, errors.New(""))
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Create", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Post("/v1/planets", ctr.Create)
@@ -190,7 +193,7 @@ func TestDontCreatePlanetDueToInternalError(t *testing.T) {
 	req := httptest.NewRequest("POST", "/v1/planets", nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(500, resp.StatusCode, "they should be equal")
@@ -199,11 +202,12 @@ func TestDontCreatePlanetDueToInternalError(t *testing.T) {
 func TestDeletePlanetSuccessfully(t *testing.T) {
 	id := "124"
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Delete", id).Return(int64(1), nil)
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Delete", id).Return(int64(1), nil)
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
@@ -213,7 +217,7 @@ func TestDeletePlanetSuccessfully(t *testing.T) {
 	req := httptest.NewRequest("DELETE", url, nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(204, resp.StatusCode, "they should be equal")
@@ -222,11 +226,12 @@ func TestDeletePlanetSuccessfully(t *testing.T) {
 func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 	id := "124"
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Delete", id).Return(int64(0), errors.New(""))
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Delete", id).Return(int64(0), errors.New(""))
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
@@ -236,7 +241,7 @@ func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 	req := httptest.NewRequest("DELETE", url, nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(404, resp.StatusCode, "they should be equal")
@@ -245,11 +250,12 @@ func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 func TestDontDeletePlanetDueInternalError(t *testing.T) {
 	id := "124"
 
-	planetsClientMock := new(PlanetsClientMock)
-	planetsClientMock.On("Delete", id).Return(int64(-1), errors.New(""))
+	planetsDomainMock := new(PlanetsDomainMock)
+	planetsDomainMock.On("Delete", id).Return(int64(-1), errors.New(""))
 
-	ctr := CreatePlanetsController()
-	ctr.Planets = planetsClientMock
+	ctr := PlanetsController{
+		PlanetsDomain: planetsDomainMock,
+	}
 
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
@@ -259,7 +265,7 @@ func TestDontDeletePlanetDueInternalError(t *testing.T) {
 	req := httptest.NewRequest("DELETE", url, nil)
 	resp, _ := app.Test(req)
 
-	planetsClientMock.AssertExpectations(t)
+	planetsDomainMock.AssertExpectations(t)
 
 	assert := assert.New(t)
 	assert.Equal(500, resp.StatusCode, "they should be equal")

@@ -19,37 +19,37 @@ type CollectionHelper interface {
 	Indexes() IndexViewHelper
 }
 
-type CursorHelper interface {
-	All(ctx context.Context, results interface{}) error
-}
-
 type ClientHelper interface {
 	Database(string) DatabaseHelper
 	Connect() error
 	StartSession() (mongo.Session, error)
 }
 
+type CursorHelper interface {
+	All(ctx context.Context, results interface{}) error
+}
+
 type IndexViewHelper interface {
 	CreateOne(ctx context.Context, model mongo.IndexModel, opts ...*options.CreateIndexesOptions) (string, error)
 }
 
-type mongoClient struct {
+type MongoClient struct {
 	cl *mongo.Client
 }
 
-type mongoDatabase struct {
+type MongoDatabase struct {
 	db *mongo.Database
 }
 
-type mongoCollection struct {
+type MongoCollection struct {
 	coll *mongo.Collection
 }
 
-type mongoCursor struct {
+type MongoCursor struct {
 	c *mongo.Cursor
 }
 
-type mongoIndexView struct {
+type MongoIndexView struct {
 	iv mongo.IndexView
 }
 
@@ -57,63 +57,63 @@ type mongoSession struct {
 	mongo.Session
 }
 
-func NewClient(databaseHost string) (ClientHelper, error) {
+func CreateClient(databaseHost string) (ClientHelper, error) {
 	c, err := mongo.Connect(context.Background(), options.Client().ApplyURI(databaseHost))
-	return &mongoClient{cl: c}, err
+	return &MongoClient{cl: c}, err
 }
 
-func NewDatabase(databaseName string, client ClientHelper) DatabaseHelper {
+func CreateDatabase(databaseName string, client ClientHelper) DatabaseHelper {
 	return client.Database(databaseName)
 }
 
-func (mc *mongoClient) Database(dbName string) DatabaseHelper {
+func (mc *MongoClient) Database(dbName string) DatabaseHelper {
 	db := mc.cl.Database(dbName)
-	return &mongoDatabase{db: db}
+	return &MongoDatabase{db: db}
 }
 
-func (mc *mongoClient) StartSession() (mongo.Session, error) {
+func (mc *MongoClient) StartSession() (mongo.Session, error) {
 	session, err := mc.cl.StartSession()
 	return &mongoSession{session}, err
 }
 
-func (mc *mongoClient) Connect() error {
+func (mc *MongoClient) Connect() error {
 	return mc.cl.Connect(nil)
 }
 
-func (md *mongoDatabase) Collection(colName string) CollectionHelper {
+func (md *MongoDatabase) Collection(colName string) CollectionHelper {
 	collection := md.db.Collection(colName)
-	return &mongoCollection{coll: collection}
+	return &MongoCollection{coll: collection}
 }
 
-func (md *mongoDatabase) Client() ClientHelper {
+func (md *MongoDatabase) Client() ClientHelper {
 	client := md.db.Client()
-	return &mongoClient{cl: client}
+	return &MongoClient{cl: client}
 }
 
-func (mc *mongoCollection) Find(ctx context.Context, filter interface{}) CursorHelper {
+func (mc *MongoCollection) Find(ctx context.Context, filter interface{}) CursorHelper {
 	cursor, _ := mc.coll.Find(ctx, filter)
-	return &mongoCursor{c: cursor}
+	return &MongoCursor{c: cursor}
 }
 
-func (mc *mongoCollection) InsertOne(ctx context.Context, document interface{}) (*mongo.InsertOneResult, error) {
+func (mc *MongoCollection) InsertOne(ctx context.Context, document interface{}) (*mongo.InsertOneResult, error) {
 	res, err := mc.coll.InsertOne(ctx, document)
 	return res, err
 }
 
-func (mc *mongoCollection) DeleteOne(ctx context.Context, filter interface{}) (int64, error) {
+func (mc *MongoCollection) DeleteOne(ctx context.Context, filter interface{}) (int64, error) {
 	count, err := mc.coll.DeleteOne(ctx, filter)
 	return count.DeletedCount, err
 }
 
-func (mc *mongoCollection) Indexes() IndexViewHelper {
+func (mc *MongoCollection) Indexes() IndexViewHelper {
 	indexView := mc.coll.Indexes()
-	return &mongoIndexView{iv: indexView}
+	return &MongoIndexView{iv: indexView}
 }
 
-func (c *mongoCursor) All(ctx context.Context, results interface{}) error {
+func (c *MongoCursor) All(ctx context.Context, results interface{}) error {
 	return c.c.All(ctx, results)
 }
 
-func (iv *mongoIndexView) CreateOne(ctx context.Context, model mongo.IndexModel, opts ...*options.CreateIndexesOptions) (string, error) {
+func (iv *MongoIndexView) CreateOne(ctx context.Context, model mongo.IndexModel, opts ...*options.CreateIndexesOptions) (string, error) {
 	return iv.iv.CreateOne(ctx, model, opts...)
 }

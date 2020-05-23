@@ -6,20 +6,12 @@ import (
 	"github.com/gofiber/helmet"
 	"github.com/gofiber/logger"
 	"github.com/gofiber/recover"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var planetsDB PlanetsDatabase
 var config Config = parseConfig()
-var mongoBDClient *mongo.Client
-var mongoConnectionError error
-var isTesting bool = false
 
 func main() {
-	if !isTesting {
-		planetsDB = setupPlanetsDatabase()
-		cacheMovieAppearancesByName()
-	}
+	cacheMovieAppearancesByName()
 
 	app := fiber.New()
 

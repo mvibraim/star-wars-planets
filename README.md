@@ -30,15 +30,14 @@ All data provided by the user through the API is persisted in MongoDB along with
 
 `go test` run all the tests below
 
-- Main unit test
+- Planets controller unit test
 
 TODO
 
 - Cache unit test
-- Planets controller unit test
-- Planets client unit test
+- Planets domain unit test
 - SWAPI client unit test
-- Main integration test
+- Planets API integration test
 
 ## Prerequisites
 
