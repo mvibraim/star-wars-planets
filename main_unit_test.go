@@ -55,7 +55,7 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return(response, nil)
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -76,7 +76,7 @@ func TestDontGetPlanetsDueToNotFound(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", filter).Return([]Planet{}, nil)
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -95,7 +95,7 @@ func TestDontGetPlanetsDueToInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Get", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -123,7 +123,7 @@ func TestCreatePlanetSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(response, nil)
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -143,7 +143,7 @@ func TestDontCreatePlanetDueToConflict(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(nil, mongo.WriteException{WriteErrors: writeErrors})
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -162,7 +162,7 @@ func TestDontCreatePlanetDueToBadRequest(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(nil, validator.ValidationErrors{})
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -181,7 +181,7 @@ func TestDontCreatePlanetDueToInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Create", mock.Anything).Return(nil, errors.New(""))
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -202,7 +202,7 @@ func TestDeletePlanetSuccessfully(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(1), nil)
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -225,7 +225,7 @@ func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(0), errors.New(""))
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()
@@ -248,7 +248,7 @@ func TestDontDeletePlanetDueInternalError(t *testing.T) {
 	planetsClientMock := new(PlanetsClientMock)
 	planetsClientMock.On("Delete", id).Return(int64(-1), errors.New(""))
 
-	ctr := PlanetsControllers{}
+	ctr := PlanetsController{}
 	ctr.PlanetsClient = planetsClientMock
 
 	app := fiber.New()

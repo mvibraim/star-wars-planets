@@ -11,7 +11,7 @@ import (
 )
 
 // PlanetsControllers represents the planet controller structure
-type PlanetsControllers struct {
+type PlanetsController struct {
 	PlanetsClient interface {
 		Get(filter bson.M) ([]Planet, error)
 		Create(body string) (map[string]string, error)
@@ -20,7 +20,7 @@ type PlanetsControllers struct {
 }
 
 // Index render the returned planets as JSON
-func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
+func (ctr *PlanetsController) Index(c *fiber.Ctx) {
 	fmt.Printf("%s\n", "Retrieving planets")
 
 	filter := bson.M{}
@@ -49,7 +49,7 @@ func (ctr *PlanetsControllers) Index(c *fiber.Ctx) {
 }
 
 // Create render the planet create response as JSON
-func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
+func (ctr *PlanetsController) Create(c *fiber.Ctx) {
 	fmt.Printf("%s\n", "Creating planet")
 
 	c.Accepts("application/json")
@@ -82,7 +82,7 @@ func (ctr *PlanetsControllers) Create(c *fiber.Ctx) {
 }
 
 // Delete render the planet deletion response
-func (ctr *PlanetsControllers) Delete(c *fiber.Ctx) {
+func (ctr *PlanetsController) Delete(c *fiber.Ctx) {
 	fmt.Printf("%s\n", "Deleting planet")
 
 	deletedCount, err := ctr.PlanetsClient.Delete(c.Params("id"))
