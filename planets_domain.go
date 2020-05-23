@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/go-playground/validator"
 	"go.mongodb.org/mongo-driver/bson"
@@ -57,7 +56,7 @@ func (domain *PlanetsDomain) Create(body string) (map[string]string, error) {
 		return nil, validationErrors
 	}
 
-	movieAppearances, _ := domain.PlanetsCache.getCache(strings.ToLower(planet.Name))
+	movieAppearances, _ := domain.PlanetsCache.getCache(planet.Name)
 
 	if movieAppearances == -1 {
 		planet.MovieAppearances = 0

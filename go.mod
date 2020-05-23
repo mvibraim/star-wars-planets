@@ -14,6 +14,7 @@ require (
 	github.com/gomodule/redigo v1.8.1
 	github.com/klauspost/compress v1.10.6 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
+	github.com/rafaeljusto/redigomock v2.3.0+incompatible
 	github.com/stretchr/testify v1.5.1
 	go.mongodb.org/mongo-driver v1.3.3
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect

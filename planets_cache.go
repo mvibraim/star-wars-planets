@@ -52,7 +52,7 @@ func (cache *PlanetsCache) setCache(name string, movieAppearances int) error {
 }
 
 func (cache *PlanetsCache) getCache(name string) (int, error) {
-	movieAppearances, err := redis.Int(cache.Conn.Do("GET", name))
+	movieAppearances, err := redis.Int(cache.Conn.Do("GET", strings.ToLower(name)))
 
 	if err == redis.ErrNil {
 		return -1, nil
