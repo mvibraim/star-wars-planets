@@ -56,7 +56,11 @@ func (domain *PlanetsDomain) Create(body string) (map[string]string, error) {
 		return nil, validationErrors
 	}
 
-	movieAppearances, _ := domain.PlanetsCache.getCache(planet.Name)
+	movieAppearances, err := domain.PlanetsCache.GetCache(planet.Name)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if movieAppearances == -1 {
 		planet.MovieAppearances = 0

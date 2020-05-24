@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 )
 
 type SwapiClient struct {
-	PlanetsCache PlanetsCacheHelper
+	PlanetsCache      PlanetsCacheHelper
+	PlanetsHttpClient HttpClientHelper
 }
 
 func CreateSwapiClient() *SwapiClient {
 	return &SwapiClient{
-		PlanetsCache: CreatePlanetsCache(),
+		PlanetsCache:      CreatePlanetsCache(),
+		PlanetsHttpClient: CreateHttpClient(),
 	}
 }
 
@@ -29,40 +30,57 @@ type PlanetInfo struct {
 	Films []string
 }
 
-func (sc *SwapiClient) cacheMovieAppearancesByName() {
+func (sc *SwapiClient) CacheMovieAppearancesByName() error {
 	fmt.Printf("%s\n", "Caching movie appearances indexed by name")
 
-	allMovieAppearancesIndexedByName := fetchPlanets()
+	allMovieAppearancesIndexedByName, err := fetchPlanets(sc.PlanetsHttpClient)
+
+	if err != nil {
+		fmt.Printf("%s\n", "Can't cache movie appearances due to fetch error")
+		return err
+	}
 
 	for _, filmData := range allMovieAppearancesIndexedByName {
 		for name, movieAppearances := range filmData {
-			sc.PlanetsCache.setCache(name, movieAppearances)
+			err := sc.PlanetsCache.SetCache(name, movieAppearances)
+
+			if err != nil {
+				fmt.Printf("%s\n", "Can't cache movie appearances due to set cache error")
+				return err
+			}
 		}
 	}
 
 	fmt.Printf("%s\n", "Cached successfully")
+
+	return nil
 }
 
-func fetchPlanets() []map[string]int {
+func fetchPlanets(client HttpClientHelper) ([]map[string]int, error) {
 	fmt.Printf("%s\n", "Fetching all planets from SWAPI API and indexing movie appearances by name, as []map[string]int{name: movieAppearances}")
 
-	channel := make(chan []map[string]int)
+	allMovieAppearancesIndexedByName, err := fetchMovieAppearancesIndexedByName(client)
 
-	go fetchMovieAppearancesIndexedByName(channel)
-
-	allMovieAppearancesIndexedByName := <-channel
+	if err != nil {
+		fmt.Printf("%s\n", "Can't fetch planets due to error")
+		return nil, err
+	}
 
 	fmt.Printf("%s\n", "Fetched successfully")
 
-	return allMovieAppearancesIndexedByName
+	return allMovieAppearancesIndexedByName, nil
 }
 
-func fetchMovieAppearancesIndexedByName(channel chan []map[string]int) {
+func fetchMovieAppearancesIndexedByName(client HttpClientHelper) ([]map[string]int, error) {
 	planetsURL := config.SwapiURL
 	var allMovieAppearancesIndexedByName []map[string]int
 
 	for {
-		body := fetchSwapiPlanetsBody(planetsURL)
+		body, err := fetchSwapiPlanetsBody(client, planetsURL)
+
+		if err != nil {
+			return nil, err
+		}
 
 		allMovieAppearancesIndexedByName = IndexMovieAppearancesByName(body, allMovieAppearancesIndexedByName)
 
@@ -73,22 +91,32 @@ func fetchMovieAppearancesIndexedByName(channel chan []map[string]int) {
 		}
 	}
 
-	channel <- allMovieAppearancesIndexedByName
+	return allMovieAppearancesIndexedByName, nil
 }
 
-func fetchSwapiPlanetsBody(planetsURL string) SwapiPlanetsBody {
-	res, _ := http.Get(planetsURL)
-	rawBody, _ := ioutil.ReadAll(res.Body)
+func fetchSwapiPlanetsBody(client HttpClientHelper, planetsURL string) (*SwapiPlanetsBody, error) {
+	res, err := client.Get(planetsURL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rawBody, err := ioutil.ReadAll(res.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
 	res.Body.Close()
 
 	var body SwapiPlanetsBody
 	json.Unmarshal(rawBody, &body)
 
-	return body
+	return &body, nil
 }
 
 // IndexMovieAppearancesByName indexes the movie appearances by name
-func IndexMovieAppearancesByName(body SwapiPlanetsBody, allMovieAppearancesIndexedByName []map[string]int) []map[string]int {
+func IndexMovieAppearancesByName(body *SwapiPlanetsBody, allMovieAppearancesIndexedByName []map[string]int) []map[string]int {
 	for _, planet := range body.Results {
 		movieAppearances := len(planet.Films)
 		name := planet.Name

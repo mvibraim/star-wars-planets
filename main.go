@@ -11,7 +11,7 @@ import (
 var config Config = parseConfig()
 
 func main() {
-	CreateSwapiClient().cacheMovieAppearancesByName()
+	CreateSwapiClient().CacheMovieAppearancesByName()
 
 	app := fiber.New()
 

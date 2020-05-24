@@ -7,8 +7,8 @@ import (
 )
 
 type PlanetsCacheHelper interface {
-	getCache(name string) (int, error)
-	setCache(name string, movieAppearances int) error
+	GetCache(name string) (int, error)
+	SetCache(name string, movieAppearances int) error
 }
 
 type PlanetsCache struct {
@@ -41,7 +41,7 @@ func newRedisPool() *redis.Pool {
 	}
 }
 
-func (cache *PlanetsCache) setCache(name string, movieAppearances int) error {
+func (cache *PlanetsCache) SetCache(name string, movieAppearances int) error {
 	_, err := cache.Conn.Do("SET", strings.ToLower(name), movieAppearances)
 
 	if err != nil {
@@ -51,7 +51,7 @@ func (cache *PlanetsCache) setCache(name string, movieAppearances int) error {
 	return nil
 }
 
-func (cache *PlanetsCache) getCache(name string) (int, error) {
+func (cache *PlanetsCache) GetCache(name string) (int, error) {
 	movieAppearances, err := redis.Int(cache.Conn.Do("GET", strings.ToLower(name)))
 
 	if err == redis.ErrNil {

@@ -15,7 +15,7 @@ func TestSetCacheSuccessfully(t *testing.T) {
 		Conn: connMock,
 	}
 
-	err := planetsCache.setCache("Tatooine", 5)
+	err := planetsCache.SetCache("Tatooine", 5)
 
 	if err != nil {
 		t.Fatal(err)
@@ -30,7 +30,7 @@ func TestDontSetCacheDueToError(t *testing.T) {
 		Conn: connMock,
 	}
 
-	err := planetsCache.setCache("Tatooine", 5)
+	err := planetsCache.SetCache("Tatooine", 5)
 
 	if err == nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestGetCacheSuccessfully(t *testing.T) {
 		Conn: connMock,
 	}
 
-	movieAppearances, err := planetsCache.getCache("Tatooine")
+	movieAppearances, err := planetsCache.GetCache("Tatooine")
 
 	if err != nil && movieAppearances != 5 {
 		t.Fatal(err)
@@ -60,7 +60,7 @@ func TestDontGetCacheDueToNotFound(t *testing.T) {
 		Conn: connMock,
 	}
 
-	movieAppearances, err := planetsCache.getCache("Tatooine")
+	movieAppearances, err := planetsCache.GetCache("Tatooine")
 
 	if err != nil && movieAppearances != -1 {
 		t.Fatal(err)
@@ -75,7 +75,7 @@ func TestDontGetCacheDueToError(t *testing.T) {
 		Conn: connMock,
 	}
 
-	movieAppearances, err := planetsCache.getCache("Tatooine")
+	movieAppearances, err := planetsCache.GetCache("Tatooine")
 
 	if err == nil && movieAppearances != -1 {
 		t.Fatal(err)
