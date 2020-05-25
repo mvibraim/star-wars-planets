@@ -11,43 +11,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type PlanetsCacheMock struct {
-	mock.Mock
-}
-
-type SwapiClientMock struct {
-	mock.Mock
-}
-
-func (cache *PlanetsCacheMock) SetCache(name string, movieAppearances int) error {
-	args := cache.Called(name, movieAppearances)
-
-	if args.Get(0) == nil {
-		return nil
-	}
-
-	return args.Error(0)
-}
-
-func (cache *PlanetsCacheMock) GetCache(name string) (int, error) {
-	args := cache.Called(name)
-
-	if args.Get(1) == nil {
-		return args.Int(0), nil
-	}
-
-	return args.Int(0), args.Error(1)
-}
-
-type PlanetsHttpClientMock struct {
-	mock.Mock
-}
-
-func (client *PlanetsHttpClientMock) Get(url string) (*http.Response, error) {
-	args := client.Called(url)
-	return args.Get(0).(*http.Response), args.Error(1)
-}
-
 func TestCacheMovieAppearancesByNameSuccessfully(t *testing.T) {
 	planetsCacheMock := new(PlanetsCacheMock)
 	planetsCacheMock.On("SetCache", "Tatooine", 1).Return(nil)

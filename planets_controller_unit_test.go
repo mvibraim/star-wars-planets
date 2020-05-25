@@ -15,35 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type PlanetsDomainMock struct {
-	mock.Mock
-}
-
-func (client *PlanetsDomainMock) Get(filter bson.M) ([]Planet, error) {
-	args := client.Called(filter)
-
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).([]Planet), args.Error(1)
-}
-
-func (client *PlanetsDomainMock) Create(body string) (map[string]string, error) {
-	args := client.Called(body)
-
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-
-	return args.Get(0).(map[string]string), args.Error(1)
-}
-
-func (client *PlanetsDomainMock) Delete(id string) (int64, error) {
-	args := client.Called(id)
-	return args.Get(0).(int64), args.Error(1)
-}
-
 func TestGetPlanetsSuccessfully(t *testing.T) {
 	filter := bson.M{}
 	response := []Planet{{Name: "bar", Terrain: "world", Climate: "cold"}}
