@@ -37,28 +37,6 @@ func TestGetPlanetsSuccessfully(t *testing.T) {
 	assert.Equal(200, resp.StatusCode, "they should be equal")
 }
 
-func TestDontGetPlanetsDueToNotFound(t *testing.T) {
-	filter := bson.M{}
-
-	planetsDomainMock := new(PlanetsDomainMock)
-	planetsDomainMock.On("Get", filter).Return([]Planet{}, nil)
-
-	ctr := PlanetsController{
-		PlanetsDomain: planetsDomainMock,
-	}
-
-	app := fiber.New()
-	app.Get("/v1/planets", ctr.Index)
-
-	req := httptest.NewRequest("GET", "/v1/planets", nil)
-	resp, _ := app.Test(req)
-
-	planetsDomainMock.AssertExpectations(t)
-
-	assert := assert.New(t)
-	assert.Equal(404, resp.StatusCode, "they should be equal")
-}
-
 func TestDontGetPlanetsDueToInternalError(t *testing.T) {
 	planetsDomainMock := new(PlanetsDomainMock)
 	planetsDomainMock.On("Get", mock.Anything).Return(nil, errors.New(""))

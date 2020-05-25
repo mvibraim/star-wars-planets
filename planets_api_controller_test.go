@@ -87,31 +87,6 @@ func TestIntegrationGetPlanetsWithIdFilterSuccessfully(t *testing.T) {
 	assert.Equal(200, resp.StatusCode, "they should be equal")
 }
 
-func TestIntegrationDontGetPlanetsDueToNotFound(t *testing.T) {
-	filter := bson.M{}
-	response := []Planet{}
-
-	planetsDBMock := new(PlanetsDBMock)
-	planetsDBMock.On("Get", mock.Anything, filter).Return(response, nil)
-
-	ctr := PlanetsController{
-		PlanetsDomain: &PlanetsDomain{
-			PlanetsDB: planetsDBMock,
-		},
-	}
-
-	app := fiber.New()
-	app.Get("/v1/planets", ctr.Index)
-
-	req := httptest.NewRequest("GET", "/v1/planets", nil)
-	resp, _ := app.Test(req)
-
-	planetsDBMock.AssertExpectations(t)
-
-	assert := assert.New(t)
-	assert.Equal(404, resp.StatusCode, "they should be equal")
-}
-
 func TestIntegrationDontGetPlanetsDueToInternalError(t *testing.T) {
 	filter := bson.M{}
 	response := []Planet(nil)

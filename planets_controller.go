@@ -44,10 +44,7 @@ func (ctr *PlanetsController) Index(c *fiber.Ctx) {
 
 	results, err := ctr.PlanetsDomain.Get(filter)
 
-	if len(results) == 0 && err == nil {
-		fmt.Printf("%s\n", "Planets not found")
-		c.Status(404).JSON(results)
-	} else if err != nil {
+	if err != nil {
 		fmt.Printf("%s\n", "Can't retrieve planets due to internal error")
 		c.Status(500).JSON(err)
 	} else {
