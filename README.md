@@ -68,6 +68,13 @@ make -v
 
    The movie appearances will be logged to console
 
+   ###### Responses
+   ```bash
+   201 Created     {"id":"5ecbc20616e02079fab641c0"}
+   409 Conflict    {"message":"'name' already exists"}
+   400 Bad Request {"errors":[{"error":"required","param":"Name"},{"error":"required","param":"Climate"},{"error":"required","param":"Terrain"}]}
+   ```
+
 3. Get planets
 
    ```bash
@@ -76,8 +83,20 @@ make -v
    curl -X GET localhost:3000/v1/planets?name=Tatooine
    ```
 
+   ###### Responses
+   ```bash
+   200 OK [{"name":"Tatooine","climate":"arid","terrain":"desert"}, ...}
+   200 OK []
+   ```
+
 4. Delete planet
 
    ```bash
    curl -X DELETE localhost:3000/v1/planets/5ec56d534c835f8177bff423
+   ```
+
+   ###### Responses
+   ```bash
+   204 No Content
+   404 Not Found
    ```
