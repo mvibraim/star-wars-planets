@@ -31,6 +31,46 @@ func TestGetPlanetsFromDatabaseSuccessfully(t *testing.T) {
 	assert.Equal(response, resp, "they should be equal")
 }
 
+func TestGetPlanetsFromDatabaseWithNameFilterSuccessfully(t *testing.T) {
+	filter := bson.M{"name": "name"}
+	response := []Planet{}
+	planetsDBMock := new(PlanetsDBMock)
+	planetsDBMock.On("Get", mock.Anything, filter).Return(response, nil)
+
+	planetsDomain := PlanetsDomain{
+		PlanetsDB: planetsDBMock,
+	}
+
+	resp, err := planetsDomain.Get(filter)
+
+	planetsDBMock.AssertExpectations(t)
+
+	assert := assert.New(t)
+
+	assert.Equal(nil, err, "they should be equal")
+	assert.Equal(response, resp, "they should be equal")
+}
+
+func TestGetPlanetsFromDatabaseWithIdFilterSuccessfully(t *testing.T) {
+	filter := bson.M{"_id": primitive.NewObjectID()}
+	response := []Planet{}
+	planetsDBMock := new(PlanetsDBMock)
+	planetsDBMock.On("Get", mock.Anything, filter).Return(response, nil)
+
+	planetsDomain := PlanetsDomain{
+		PlanetsDB: planetsDBMock,
+	}
+
+	resp, err := planetsDomain.Get(filter)
+
+	planetsDBMock.AssertExpectations(t)
+
+	assert := assert.New(t)
+
+	assert.Equal(nil, err, "they should be equal")
+	assert.Equal(response, resp, "they should be equal")
+}
+
 func TestDontGetPlanetsFromDatabaseDueToError(t *testing.T) {
 	filter := bson.M{}
 	planetsDBMock := new(PlanetsDBMock)
@@ -86,6 +126,26 @@ func TestDontDeletePlanetsFromDatabaseDueToError(t *testing.T) {
 	assert := assert.New(t)
 
 	assert.NotEqual(nil, err, "they shouldn't be equal")
+	assert.Equal(response, resp, "they should be equal")
+}
+
+func TestDontDeletePlanetsFromDatabaseDueToNotFound(t *testing.T) {
+	id := "id"
+	response := int64(0)
+	planetsDBMock := new(PlanetsDBMock)
+	planetsDBMock.On("Delete", mock.Anything, id).Return(response, nil)
+
+	planetsDomain := PlanetsDomain{
+		PlanetsDB: planetsDBMock,
+	}
+
+	resp, err := planetsDomain.Delete(id)
+
+	planetsDBMock.AssertExpectations(t)
+
+	assert := assert.New(t)
+
+	assert.Equal(nil, err, "they should be equal")
 	assert.Equal(response, resp, "they should be equal")
 }
 

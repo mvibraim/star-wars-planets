@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -183,9 +182,7 @@ func TestDeletePlanetSuccessfully(t *testing.T) {
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
 
-	url := fmt.Sprintf("/v1/planets/%s", id)
-
-	req := httptest.NewRequest("DELETE", url, nil)
+	req := httptest.NewRequest("DELETE", "/v1/planets/"+id, nil)
 	resp, _ := app.Test(req)
 
 	planetsDomainMock.AssertExpectations(t)
@@ -207,9 +204,7 @@ func TestDontDeletePlanetDueToNotFound(t *testing.T) {
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
 
-	url := fmt.Sprintf("/v1/planets/%s", id)
-
-	req := httptest.NewRequest("DELETE", url, nil)
+	req := httptest.NewRequest("DELETE", "/v1/planets/"+id, nil)
 	resp, _ := app.Test(req)
 
 	planetsDomainMock.AssertExpectations(t)
@@ -231,9 +226,7 @@ func TestDontDeletePlanetDueInternalError(t *testing.T) {
 	app := fiber.New()
 	app.Delete("/v1/planets/:id", ctr.Delete)
 
-	url := fmt.Sprintf("/v1/planets/%s", id)
-
-	req := httptest.NewRequest("DELETE", url, nil)
+	req := httptest.NewRequest("DELETE", "/v1/planets/"+id, nil)
 	resp, _ := app.Test(req)
 
 	planetsDomainMock.AssertExpectations(t)
